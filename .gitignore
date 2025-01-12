@@ -1,0 +1,9 @@
+
+*.sql
+*.dump
+*.bak
+
+config.php
+db.conf
+
+!dictionary_db.sql
