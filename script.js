@@ -2,6 +2,14 @@ function searchWordMatch()
 { 
 
     var w = document.getElementById('search').value;
+
+    if(!w)
+    {
+        document.getElementById('word').textContent = '';
+        document.getElementById('def').textContent = 'Empty, enter a word.';
+        return;
+    }
+
     var form = new FormData();
     var x = new XMLHttpRequest();
 
@@ -30,10 +38,16 @@ function searchWordMatch()
                 document.getElementById('word').textContent = '';
                 document.getElementById('def').textContent = error.textContent; 
             }
+            else
+            {
+                document.getElementById('word').textContent='';
+                document.getElementById('def').textContent='Response unexpected.';
+            }
         }
          else 
         {
-            alert('error:' + x.status);
+            document.getElementById('word').textContent = '';
+            document.getElementById('def').textContent = 'Error: '+ x.status;
         }
     };
 
