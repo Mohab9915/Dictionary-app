@@ -3,30 +3,30 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 
-file_put_contents('debug.log', 'Script started' . PHP_EOL, FILE_APPEND);
 
 require_once 'config.php';
 
 $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
 if ($conn->connect_error) {
-    file_put_contents('debug.log', 'Connection failed: ' . $conn->connect_error . PHP_EOL, FILE_APPEND);
     die("Connection failed: " . $conn->connect_error);
 }
 
-$definition = '';
+$matching_word = '';
 $error = '';
 
 if (isset($_POST['search'])) {
     $word = $conn->real_escape_string($_POST['word']);
-    $sql = "SELECT definition FROM words WHERE word = '$word'";
+    $sql = "SELECT sword FROM word_group WHERE fword = '$word'";
     $result = $conn->query($sql);
     
-    if ($result->num_rows > 0) {
+    if ($result === false) {
+        $error = "Error executing query: " . $conn->error;
+    } elseif ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
-        $definition = $row['definition'];
+        $matching_word = $row['sword'];
     } else {
-        $error = "Word not found in dictionary";
+        $error = "Matching word not found in dictionary";
     }
 }
 ?>
@@ -48,10 +48,10 @@ if (isset($_POST['search'])) {
         <button type="submit" name="search">Search</button>
     </form>
 
-    <?php if ($definition): ?>
+    <?php if ($matching_word): ?>
         <div class="result">
             <h3><?php echo htmlspecialchars($_POST['word']); ?></h3>
-            <p><?php echo htmlspecialchars($definition); ?></p>
+            <p><?php echo htmlspecialchars($matching_word); ?></p>
         </div>
     <?php endif; ?>
 
