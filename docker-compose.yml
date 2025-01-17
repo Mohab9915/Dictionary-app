@@ -30,7 +30,9 @@ services:
     networks:
       - dictionary-net
     volumes:
-      - web_data:/var/www/html
+      - type: bind
+        source: .
+        target: /var/www/html
     restart: unless-stopped
 
   db:
