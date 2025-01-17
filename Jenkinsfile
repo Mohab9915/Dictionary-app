@@ -44,7 +44,7 @@ pipeline {
                         sh '''
                             
                             rm -r /var/jenkins_home/workspace/Dictionary-app
-                            
+                            rm -r /var/www/html
                             cd /var/jenkins_home/workspace
                             
                             git clone https://github.com/Mohab9915/Dictionary-app.git /var/www/html
