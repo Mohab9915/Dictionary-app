@@ -44,10 +44,9 @@ pipeline {
                         sh '''
                             
                             rm -r /var/jenkins_home/workspace/Dictionary-app
-                            rm -r /var/www/html
+
                             cd /var/jenkins_home/workspace
                             
-                            git clone https://github.com/Mohab9915/Dictionary-app.git /var/www/html
                             git clone https://github.com/Mohab9915/Dictionary-app.git /var/jenkins_home/workspace/Dictionary-app
 
 
@@ -67,6 +66,10 @@ pipeline {
                             cd /var/jenkins_home/workspace/Dictionary-app
                             docker-compose build web db
                             docker-compose up -d web db
+                            
+                            rm -r /var/www/html
+
+                            git clone https://github.com/Mohab9915/Dictionary-app.git /var/www/html
                             
                             echo "Waiting for containers to start..."
                             sleep 15
