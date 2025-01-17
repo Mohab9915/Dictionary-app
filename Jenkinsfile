@@ -48,6 +48,8 @@ pipeline {
                             cd /var/jenkins_home/workspace
                             
                             git clone https://github.com/Mohab9915/Dictionary-app.git /var/www/html
+                            git clone https://github.com/Mohab9915/Dictionary-app.git /var/jenkins_home/workspace/Dictionary-app
+
 
                         '''
                     } catch (Exception e) {
