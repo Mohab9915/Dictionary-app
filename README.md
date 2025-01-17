@@ -10,7 +10,7 @@ A containerized web application that finds matching words using PHP, MySQL, and 
 - Interactive deployment script
 - GitHub integration
 
-## Prerequisites
+## Prerequisites ##
 
 - Docker
 - Docker Compose
