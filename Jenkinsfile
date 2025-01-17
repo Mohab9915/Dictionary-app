@@ -31,8 +31,7 @@ pipeline {
             steps {
                 sh '''
                     echo "Cleaning up old containers and images..."
-                    docker-compose down db web|| true
-                    docker system prune -f
+                    docker-compose down db web
                 '''
             }
         }
