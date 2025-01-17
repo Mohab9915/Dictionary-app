@@ -67,9 +67,11 @@ pipeline {
                             docker-compose build web db
                             docker-compose up -d web db
                             
-                            rm -r /var/www/html
-
-                            git clone https://github.com/Mohab9915/Dictionary-app.git /var/www/html
+                            echo "Copying files to web container..."
+                            docker cp /var/jenkins_home/workspace/Dictionary-app/. dictionary_web:/var/www/html/
+                            
+                            echo "Setting permissions..."
+                            docker exec dictionary_web chown -R www-data:www-data /var/www/html
                             
                             echo "Waiting for containers to start..."
                             sleep 15
