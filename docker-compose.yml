@@ -1,17 +1,41 @@
 version: '3.8'
 
 services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    privileged: true
+    user: root
+    ports:
+      - "8081:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    networks:
+      - dictionary-net
+
   web:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: dictionary_web
     ports:
       - "8080:80"
-    volumes:
-      - .:/var/www/html
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    networks:
+      - dictionary-net
+    volumes:
+      - web_data:/var/www/html
+    restart: unless-stopped
 
   db:
     image: mysql:5.7
+    container_name: dictionary_db
     restart: always
     environment:
       MYSQL_DATABASE: dictionary_db
@@ -21,6 +45,19 @@ services:
     volumes:
       - db_data:/var/lib/mysql
       - ./dictionary_db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - dictionary-net
 
 volumes:
+  jenkins_home:
   db_data:
+  web_data:
+
+networks:
+  dictionary-net:
+    name: dictionary-net
