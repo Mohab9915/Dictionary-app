@@ -2,7 +2,7 @@
 
 A containerized web application that finds matching words using PHP, MySQL, and Docker.
 
-## Features
+## Features ##
 
 - Word matching lookup
 - Containerized application using Docker
