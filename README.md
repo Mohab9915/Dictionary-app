@@ -1,4 +1,4 @@
-# Dictionary App #
+# Dictionary App ##
 
 A containerized web application that finds matching words using PHP, MySQL, and Docker.
 
