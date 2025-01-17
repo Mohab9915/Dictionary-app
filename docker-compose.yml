@@ -12,6 +12,7 @@ services:
     volumes:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
+      - web_data:/var/www/html
     environment:
       - DOCKER_HOST=unix:///var/run/docker.sock
     networks:
@@ -30,9 +31,8 @@ services:
     networks:
       - dictionary-net
     volumes:
-      - type: bind
-        source: .
-        target: /var/www/html
+      - web_data:/var/www/html
+
     restart: unless-stopped
 
   db:
