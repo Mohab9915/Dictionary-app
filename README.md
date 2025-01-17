@@ -48,7 +48,7 @@ docker-compose up -d
 docker-compose down
 ```
 
-## Project Structure
+## Project Structure ##
 
 ```
 Dictionary-app/
