@@ -43,11 +43,11 @@ pipeline {
                     try {
                         sh '''
                             
-                            rm -r /var/www/html/
+                            rm -r /var/jenkins_home/workspace/Dictionary-app
                             
-                            cd /var/www/html/
+                            cd /var/jenkins_home/workspace
                             
-                            git clone https://github.com/Mohab9915/Dictionary-app.git
+                            git clone https://github.com/Mohab9915/Dictionary-app.git /var/www/html
 
                         '''
                     } catch (Exception e) {
