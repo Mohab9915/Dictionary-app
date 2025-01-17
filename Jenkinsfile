@@ -48,6 +48,8 @@ pipeline {
                             cd /var/jenkins_home/workspace
                             
                             git clone https://github.com/Mohab9915/Dictionary-app.git
+
+                            cp -r /var/jenkins_home/workspace/Dictionary-app/. /var/www/html/
                         '''
                     } catch (Exception e) {
                         error "Failed to clone repository: ${e.getMessage()}"
