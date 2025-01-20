@@ -21,7 +21,6 @@ pipeline {
                         fi
                     else
                         echo "docker-compose not found"
-                        echo "docker-compose exists but may be broken, reinstalling..."
                         echo "Installing docker-compose..."
                         apt-get update
                         apt-get install -y docker.io curl git
