@@ -21,7 +21,12 @@ pipeline {
                         fi
                     else
                         echo "docker-compose not found"
-                        install_docker_compose
+                        echo "docker-compose exists but may be broken, reinstalling..."
+                        echo "Installing docker-compose..."
+                        apt-get update
+                        apt-get install -y docker.io curl git
+                        curl -L "https://github.com/docker/compose/releases/download/v2.27.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+                        chmod +x /usr/local/bin/docker-compose
                     fi
                 '''
             }
