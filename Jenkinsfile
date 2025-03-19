@@ -48,11 +48,17 @@ pipeline {
                         sh '''
                             mkdir -p /var/jenkins_home/workspace/Dictionary-app
                             
-                            rm -rf /var/jenkins_home/workspace/Dictionary-app/* || true
+                            rm -rf /var/jenkins_home/workspace/Dictionary-app/*
+                            rm -rf /var/jenkins_home/workspace/Dictionary-app/.git
                             
                             cd /var/jenkins_home/workspace/Dictionary-app
                             
-                            git clone -b main https://github.com/Mohab9915/Dictionary-app.git .
+                            git init
+                            git remote add origin https://github.com/Mohab9915/Dictionary-app.git
+                            git fetch origin main
+                            git checkout -f main
+                            
+                            git status
                         '''
                     } catch (Exception e) {
                         error "Failed to clone repository: ${e.getMessage()}"
@@ -66,12 +72,19 @@ pipeline {
                 script {
                     try {
                         sh '''
-                            cd /var/jenkins_home/workspace/Dictionary-app
+                            pwd
+                            ls -la
+                            
+                            if [ ! -f docker-compose.yml ]; then
+                                echo "docker-compose.yml not found!"
+                                exit 1
+                            fi
+                            
                             docker-compose build web db
                             docker-compose up -d web db
                             
                             echo "Copying files to web container..."
-                            docker cp /var/jenkins_home/workspace/Dictionary-app/. dictionary_web:/var/www/html/
+                            docker cp . dictionary_web:/var/www/html/
                             
                             echo "Setting permissions..."
                             docker exec dictionary_web chown -R www-data:www-data /var/www/html
@@ -96,7 +109,9 @@ pipeline {
                 echo 'Pipeline failed! Cleaning up...'
                 if [ -d "/var/jenkins_home/workspace/Dictionary-app" ]; then
                     cd /var/jenkins_home/workspace/Dictionary-app
-                    docker-compose down || true
+                    if [ -f docker-compose.yml ]; then
+                        docker-compose down || true
+                    fi
                 fi
             '''
         }
@@ -104,7 +119,10 @@ pipeline {
             echo 'Pipeline completed successfully!'
         }
         always {
-            cleanWs() 
+            cleanWs(cleanWhenNotBuilt: false,
+                   deleteDirs: true,
+                   disableDeferredWipeout: true,
+                   notFailBuild: true)
         }
     }
 }
