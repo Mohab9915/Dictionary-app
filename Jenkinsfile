@@ -35,8 +35,8 @@ pipeline {
             steps {
                 sh '''
                     echo "Cleaning up old containers and images..."
-                    docker-compose down db web|| true
-                    docker system prune -f
+                    docker-compose down db web || true
+                    docker system prune -f || true
                 '''
             }
         }
@@ -46,14 +46,13 @@ pipeline {
                 script {
                     try {
                         sh '''
+                            mkdir -p /var/jenkins_home/workspace/Dictionary-app
                             
-                            rm -r /var/jenkins_home/workspace/Dictionary-app
-
-                            cd /var/jenkins_home/workspace
+                            rm -rf /var/jenkins_home/workspace/Dictionary-app/* || true
                             
-                            git clone https://github.com/Mohab9915/Dictionary-app.git /var/jenkins_home/workspace/Dictionary-app
-
-
+                            cd /var/jenkins_home/workspace/Dictionary-app
+                            
+                            git clone -b main https://github.com/Mohab9915/Dictionary-app.git .
                         '''
                     } catch (Exception e) {
                         error "Failed to clone repository: ${e.getMessage()}"
@@ -95,12 +94,17 @@ pipeline {
         failure {
             sh '''
                 echo 'Pipeline failed! Cleaning up...'
-                cd /var/jenkins_home/workspace/Dictionary-app
-                docker-compose down || true
+                if [ -d "/var/jenkins_home/workspace/Dictionary-app" ]; then
+                    cd /var/jenkins_home/workspace/Dictionary-app
+                    docker-compose down || true
+                fi
             '''
         }
         success {
             echo 'Pipeline completed successfully!'
+        }
+        always {
+            cleanWs() 
         }
     }
 }
