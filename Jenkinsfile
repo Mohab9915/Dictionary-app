@@ -68,17 +68,44 @@ pipeline {
                     try {
                         sh '''
                             cd /var/jenkins_home/workspace/Dictionary-app
-                            docker-compose build web db
+                            
+                            # Stop and remove existing containers
+                            docker-compose down
+                            
+                            # Remove old web container and image to force rebuild
+                            docker rm -f dictionary_web || true
+                            docker rmi dictionary-app_web || true
+                            
+                            # Build and start containers
+                            docker-compose build --no-cache web
                             docker-compose up -d web db
                             
-                            echo "Copying files to web container..."
-                            docker cp /var/jenkins_home/workspace/Dictionary-app/. dictionary_web:/var/www/html/
+                            # Ensure the web container is running
+                            until [ "`docker inspect -f {{.State.Running}} dictionary_web`" == "true" ]; do
+                                echo "Waiting for web container to start..."
+                                sleep 2
+                            done
                             
+                            # Copy updated files to web container
+                            echo "Copying files to web container..."
+                            docker cp ./* dictionary_web:/var/www/html/
+                            docker cp ./.* dictionary_web:/var/www/html/ 2>/dev/null || true
+                            
+                            # Set proper permissions
                             echo "Setting permissions..."
                             docker exec dictionary_web chown -R www-data:www-data /var/www/html
+                            docker exec dictionary_web chmod -R 755 /var/www/html
                             
-                            echo "Waiting for containers to start..."
-                            sleep 15
+                            # Verify the file was updated
+                            echo "Verifying index.html content:"
+                            docker exec dictionary_web cat /var/www/html/index.html
+                            
+                            # Restart Apache in the container
+                            echo "Restarting Apache..."
+                            docker exec dictionary_web service apache2 reload
+                            
+                            echo "Waiting for services to stabilize..."
+                            sleep 5
                             
                             echo "Container status:"
                             docker-compose ps
