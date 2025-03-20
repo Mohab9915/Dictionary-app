@@ -12,11 +12,9 @@ services:
     volumes:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
-      - /usr/bin/docker:/usr/bin/docker
-      - /usr/local/bin/docker-compose:/usr/local/bin/docker-compose
+      - web_data:/var/www/html
     environment:
       - DOCKER_HOST=unix:///var/run/docker.sock
-    restart: unless-stopped
     networks:
       - dictionary-net
 
@@ -34,12 +32,13 @@ services:
       - dictionary-net
     volumes:
       - web_data:/var/www/html
+
     restart: unless-stopped
 
   db:
     image: mysql:5.7
     container_name: dictionary_db
-    restart: unless-stopped
+    restart: always
     environment:
       MYSQL_DATABASE: dictionary_db
       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
@@ -64,4 +63,3 @@ volumes:
 networks:
   dictionary-net:
     name: dictionary-net
-    driver: bridge
