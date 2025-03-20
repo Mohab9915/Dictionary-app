@@ -118,11 +118,5 @@ pipeline {
         success {
             echo 'Pipeline completed successfully!'
         }
-        always {
-            cleanWs(cleanWhenNotBuilt: false,
-                   deleteDirs: true,
-                   disableDeferredWipeout: true,
-                   notFailBuild: true)
-        }
     }
 }
