@@ -73,7 +73,7 @@ pipeline {
                             docker-compose build web db
                             docker-compose up -d web db
                             
-                            echo "Copying files to web container..."
+                            echo "Coping files to web container..."
                             docker cp /var/jenkins_home/workspace/Dictionary-app/. dictionary_web:/var/www/html/
                             
                             echo "Setting permissions..."
