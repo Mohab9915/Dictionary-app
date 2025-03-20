@@ -1,11 +1,15 @@
 pipeline {
     agent any
+    options {
+        skipDefaultCheckout() // Skip automatic checkout
+    }
     triggers {
         githubPush()
     }
     stages {
         stage('Setup Dependencies') {
             steps {
+                cleanWs() // Clean workspace at the start
                 sh '''
                     if command -v docker-compose >/dev/null 2>&1; then
                         echo "Checking docker-compose version..."
@@ -47,11 +51,10 @@ pipeline {
                     try {
                         sh '''
                             mkdir -p /var/jenkins_home/workspace/Dictionary-app
-                            
-                            rm -rf /var/jenkins_home/workspace/Dictionary-app/* || true
-                            
                             cd /var/jenkins_home/workspace/Dictionary-app
                             
+                            # Force clean clone
+                            rm -rf ./* ./.* 2>/dev/null || true
                             git clone -b main https://github.com/Mohab9915/Dictionary-app.git .
                         '''
                     } catch (Exception e) {
@@ -104,7 +107,7 @@ pipeline {
             echo 'Pipeline completed successfully!'
         }
         always {
-            cleanWs() // Clean workspace after build
+            echo 'Pipeline finished'
         }
     }
 }
