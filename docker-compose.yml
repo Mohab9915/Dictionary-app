@@ -7,13 +7,16 @@ services:
     privileged: true
     user: root
     ports:
+      - "8081:8080"
       - "50000:50000"
     volumes:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
-      - web_data:/var/www/html
+      - /usr/bin/docker:/usr/bin/docker
+      - /usr/local/bin/docker-compose:/usr/local/bin/docker-compose
     environment:
       - DOCKER_HOST=unix:///var/run/docker.sock
+    restart: unless-stopped
     networks:
       - dictionary-net
 
@@ -31,13 +34,12 @@ services:
       - dictionary-net
     volumes:
       - web_data:/var/www/html
-
     restart: unless-stopped
 
   db:
     image: mysql:5.7
     container_name: dictionary_db
-    restart: always
+    restart: unless-stopped
     environment:
       MYSQL_DATABASE: dictionary_db
       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
@@ -62,3 +64,4 @@ volumes:
 networks:
   dictionary-net:
     name: dictionary-net
+    driver: bridge
