@@ -1,8 +1,5 @@
 pipeline {
     agent any
-    options {
-        skipDefaultCheckout() // Skip automatic checkout
-    }
     triggers {
         githubPush()
     }
@@ -73,7 +70,7 @@ pipeline {
                             docker-compose build web db
                             docker-compose up -d web db
                             
-                            echo "Coping files to web container..."
+                            echo "Copying files to web container..."
                             docker cp /var/jenkins_home/workspace/Dictionary-app/. dictionary_web:/var/www/html/
                             
                             echo "Setting permissions..."
