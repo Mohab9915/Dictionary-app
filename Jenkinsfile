@@ -35,8 +35,8 @@ pipeline {
             steps {
                 sh '''
                     echo "Cleaning up old containers and images..."
-                    docker-compose down db web|| true
-                    docker system prune -f
+                    docker-compose down db web || true
+                    docker system prune -f || true
                 '''
             }
         }
@@ -46,14 +46,13 @@ pipeline {
                 script {
                     try {
                         sh '''
+                            mkdir -p /var/jenkins_home/workspace/Dictionary-app
                             
-                            rm -r /var/jenkins_home/workspace/Dictionary-app
-
-                            cd /var/jenkins_home/workspace
+                            rm -rf /var/jenkins_home/workspace/Dictionary-app/* || true
                             
-                            git clone https://github.com/Mohab9915/Dictionary-app.git /var/jenkins_home/workspace/Dictionary-app
-
-
+                            cd /var/jenkins_home/workspace/Dictionary-app
+                            
+                            git clone -b main https://github.com/Mohab9915/Dictionary-app.git .
                         '''
                     } catch (Exception e) {
                         error "Failed to clone repository: ${e.getMessage()}"
@@ -68,44 +67,17 @@ pipeline {
                     try {
                         sh '''
                             cd /var/jenkins_home/workspace/Dictionary-app
-                            
-                            # Stop and remove existing containers
-                            docker-compose down
-                            
-                            # Remove old web container and image to force rebuild
-                            docker rm -f dictionary_web || true
-                            docker rmi dictionary-app_web || true
-                            
-                            # Build and start containers
-                            docker-compose build --no-cache web
+                            docker-compose build web db
                             docker-compose up -d web db
                             
-                            # Ensure the web container is running
-                            until [ "`docker inspect -f {{.State.Running}} dictionary_web`" == "true" ]; do
-                                echo "Waiting for web container to start..."
-                                sleep 2
-                            done
-                            
-                            # Copy updated files to web container
                             echo "Copying files to web container..."
-                            docker cp ./* dictionary_web:/var/www/html/
-                            docker cp ./.* dictionary_web:/var/www/html/ 2>/dev/null || true
+                            docker cp /var/jenkins_home/workspace/Dictionary-app/. dictionary_web:/var/www/html/
                             
-                            # Set proper permissions
                             echo "Setting permissions..."
                             docker exec dictionary_web chown -R www-data:www-data /var/www/html
-                            docker exec dictionary_web chmod -R 755 /var/www/html
                             
-                            # Verify the file was updated
-                            echo "Verifying index.html content:"
-                            docker exec dictionary_web cat /var/www/html/index.html
-                            
-                            # Restart Apache in the container
-                            echo "Restarting Apache..."
-                            docker exec dictionary_web service apache2 reload
-                            
-                            echo "Waiting for services to stabilize..."
-                            sleep 5
+                            echo "Waiting for containers to start..."
+                            sleep 15
                             
                             echo "Container status:"
                             docker-compose ps
@@ -122,12 +94,17 @@ pipeline {
         failure {
             sh '''
                 echo 'Pipeline failed! Cleaning up...'
-                cd /var/jenkins_home/workspace/Dictionary-app
-                docker-compose down || true
+                if [ -d "/var/jenkins_home/workspace/Dictionary-app" ]; then
+                    cd /var/jenkins_home/workspace/Dictionary-app
+                    docker-compose down || true
+                fi
             '''
         }
         success {
             echo 'Pipeline completed successfully!'
+        }
+        always {
+            cleanWs() // Clean workspace after build
         }
     }
 }
