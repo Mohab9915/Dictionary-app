@@ -6,7 +6,6 @@ pipeline {
     stages {
         stage('Setup Dependencies') {
             steps {
-                cleanWs() // Clean workspace at the start
                 sh '''
                     if command -v docker-compose >/dev/null 2>&1; then
                         echo "Checking docker-compose version..."
