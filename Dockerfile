@@ -7,6 +7,7 @@ COPY . /var/www/html/
 RUN docker-php-ext-install mysqli
 
 RUN a2enmod rewrite
+RUN a2enmod headers
 
 COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
 

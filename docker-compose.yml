@@ -31,8 +31,7 @@ services:
     networks:
       - dictionary-net
     volumes:
-      - web_data:/var/www/html
-
+      - .:/var/www/html
     restart: unless-stopped
 
   db:
